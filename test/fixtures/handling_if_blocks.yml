@@ -1,0 +1,23 @@
+template: |
+  <div>
+    <%- if total_price -%>
+      <div>Total price: <span><%= total_price %></span></div>
+    <%- else -%>
+      <div>Total price: N/A</div>
+    <%- end -%>
+  </div>
+
+assigns: {}
+
+locals:
+  :total_price:
+
+phrases:
+ - 'Total price: [1]{total price}[/1]'
+ - 'Total price: N/A'
+
+translations:
+ - 'Игого: [1]{total price}[/1]'
+ - 'Игого: ХЗ'
+
+rendered: "<div>\n    <div>Игого: ХЗ</div>\n</div>\n"

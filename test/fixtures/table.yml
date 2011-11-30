@@ -1,0 +1,35 @@
+# encoding: UTF-8
+template: |
+  <table>
+    <tr>
+      <th>First Name</th><td><%= first_name %></td>
+    </tr>
+    <tr>
+      <th>Last Name</th><td><%= last_name %></td>
+    </tr>
+  </table>
+
+assigns: {}
+
+locals:
+  :first_name: Jack
+  :last_name: Daniels
+
+phrases:
+ - 'First Name'
+ - 'Last Name'
+
+translations:
+ - '[1]Name[/1]'
+ - '[1]Nachname[/1]'
+
+rendered: |
+  <table>
+    <tr>
+      <th>Name</th><td>Jack</td>
+    </tr>
+    <tr>
+      <th>Nachname</th><td>Daniels</td>
+    </tr>
+  </table>
+

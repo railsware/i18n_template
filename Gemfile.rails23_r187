@@ -1,0 +1,8 @@
+source "http://rubygems.org"
+
+gemspec
+
+gem "rails", "2.3.14"
+
+gem "ansi"
+gem "turn"

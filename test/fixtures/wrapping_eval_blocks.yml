@@ -1,0 +1,17 @@
+# encoding: UTF-8
+template: |
+  <div>Total price: <span><%= total_price %></span></div>
+
+assigns: {}
+
+locals:
+  :total_price: $10.99
+
+phrases:
+ - 'Total price: [1]{total price}[/1]'
+
+translations:
+ - 'Игого: [1]{total price}[/1]'
+
+rendered: |
+  <div>Игого: <span>$10.99</span></div>

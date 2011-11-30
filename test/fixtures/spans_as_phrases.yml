@@ -1,0 +1,18 @@
+# encoding: UTF-8
+template: |
+  <div><span><span i18n="p">Welcome!</span></span> <span i18n="p">We are glad to meet you here</span></div>
+
+assigns: {}
+
+locals: {}
+
+phrases:
+  - 'Welcome!'
+  - 'We are glad to meet you here'
+
+translations:
+ - 'Бобро пожаловаться!'
+ - 'Век бы вас не видать'
+
+rendered: |
+  <div><span><span>Бобро пожаловаться!</span></span> <span>Век бы вас не видать</span></div>

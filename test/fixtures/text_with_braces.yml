@@ -1,0 +1,17 @@
+template: |
+  <div>hello #{user}</div>
+  <span i18n="i">today is #{day}</span>
+
+assigns: {}
+
+locals: {}
+
+phrases:
+ - "hello [ns][lcb]user[rcb]"
+
+translations:
+ - "hallo [ns][lcb]benutzer[rcb]"
+
+rendered: |
+  <div>hallo #{benutzer}</div>
+  <span>today is #{day}</span>

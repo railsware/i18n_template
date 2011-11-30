@@ -1,0 +1,17 @@
+template: |
+  <p>Welcome <em>mister</em> <%= name %> from <%= from %> into&nbsp;&nbsp;<em>the city</em></p>
+
+assigns: {}
+
+locals:
+  :name: Vasia Pupkin
+  :from: Gonduras
+
+phrases:
+  - 'Welcome [1]mister[/1] {name} from {from} into&nbsp;&nbsp;[2]the city[/2]'
+
+translations:
+  - 'Willkommen [1]Herr[/1] {name} aus {from} in&nbsp;&nbsp;[2]der Stadt[/2]'
+
+rendered: |
+  <p>Willkommen <em>Herr</em> Vasia Pupkin aus Gonduras in&nbsp;&nbsp;<em>der Stadt</em></p>

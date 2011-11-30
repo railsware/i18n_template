@@ -1,0 +1,17 @@
+template: |
+  <div id="level1">Hello, <%= user_name %>! <div id="level2">Welcome to our site</div></div>
+
+assigns: {}
+  
+locals:
+  :user_name: joe@site.com
+
+phrases:
+ - 'Hello, {user name}! [1]Welcome to our site[/1]'
+ - 'Welcome to our site'
+
+translations:
+ - 'Кревед, joe@site.com! [1]Рады видеть вас на вашем сайте[/1]'
+
+rendered: |
+  <div id="level1">Кревед, joe@site.com! Рады видеть вас на вашем сайте</div>

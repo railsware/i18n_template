@@ -1,0 +1,15 @@
+template: |
+  <div><span><span i18n="p">Welcome!</span></span> <span i18n="i">We are glad to meet you here</span></div>
+
+assigns: {}
+
+locals: {}
+
+phrases:
+ - 'Welcome!'
+
+translations:
+ - 'Бобро пожаловаться!'
+
+rendered: |
+  <div><span><span>Бобро пожаловаться!</span></span> <span>We are glad to meet you here</span></div>

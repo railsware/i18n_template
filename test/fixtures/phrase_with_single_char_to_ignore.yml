@@ -1,0 +1,19 @@
+template: |
+  <td class="text">
+    <label for="merchant_address1"><i18n>Address 1</i18n> <span class="rA" i18n="i">*</span></label>
+  </td>
+
+assigns: {}
+
+locals: {}
+
+phrases: 
+ - 'Address 1'
+
+translations:
+ - 'Адрессо одно'
+
+rendered: |
+  <td class="text">
+    <label for="merchant_address1">Адрессо одно <span class="rA">*</span></label>
+  </td>

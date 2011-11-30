@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'i18n_template'
+
+I18nTemplate::Runner.run

@@ -1,0 +1,15 @@
+template: |
+  <div><span><span>Welcome!</span></span></div>
+
+assigns: {}
+
+locals: {}
+
+phrases:
+ - 'Welcome!'
+
+translations:
+ - 'Бобро пожаловаться!'
+
+rendered: |
+  <div><span><span>Бобро пожаловаться!</span></span></div>

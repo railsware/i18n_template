@@ -1,0 +1,14 @@
+template: |
+  <td id="step<%= step_number %>_4" colspan="4" i18n="i">&#160;</td>
+
+assigns: {}
+
+locals: 
+  :step_number: 2
+
+phrases: []
+
+translations: []
+
+rendered: |
+  <td id="step2_4" colspan="4">&#160;</td>

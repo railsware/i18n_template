@@ -1,0 +1,15 @@
+template: |
+  <label for="merchant_address1">Address 1<br/>(required)</label>
+
+assigns: {}
+
+locals: {}
+
+phrases:
+ - 'Address 1[nl](required)'
+
+translations:
+ - 'Адрессо одно[nl](обязательно)'
+
+rendered: |
+  <label for="merchant_address1">Адрессо одно<br />(обязательно)</label>

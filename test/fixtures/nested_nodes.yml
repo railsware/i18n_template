@@ -1,0 +1,16 @@
+template: |
+  <div><span>This is <span>Wrong</span> <%= message %> </span> markup</div>
+
+assigns: {}
+
+locals:
+  :message: html
+
+phrases:
+ - 'NNODE[1]This is {message} [/1] markup'
+
+translations:
+ - 'NNODE[1]Это {message} [/1] разметка'
+
+rendered: |
+  <div>NNODE<span><span>Это html </span></span> разметка</div>
