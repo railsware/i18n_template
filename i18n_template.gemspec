@@ -15,7 +15,7 @@ Currently I18nTemplate can work with (x)html documents.
 Translation is done by modify the original template (on the fly) to be translated on erb execution time.
 }
 
-  s.rubyforge_project = "template_i18n"
+  s.rubyforge_project = "i18n_template"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
