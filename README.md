@@ -247,4 +247,5 @@ Against specific versions:
 
 ## References
 
+* [i18n_template rubydocs](http://rubydoc.info/github/railsware/i18n_template/master/frames)
 * [multiversion](https://github.com/railsware/multiversion)
