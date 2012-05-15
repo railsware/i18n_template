@@ -6,7 +6,7 @@ module I18nTemplate
       class << self
         def default_options
           {
-            :glob       => ['app/views/**/*.{erb,rhtml}'],
+            :glob       => ['app/views/**/*.html.erb}'],
             :format     => 'gettext'
           }
         end
@@ -31,9 +31,9 @@ module I18nTemplate
         log "Processing #{filename}"
         source = File.read(filename)
         document = ::I18nTemplate::Document.new(source)
-        document.preprocess!
+        document.process!
 
-        document.warnings.each { |warning| log(warning) } if @options[:verbose]
+        document.errors.each { |message| log(message) } if @options[:verbose]
 
         document.phrases
       end

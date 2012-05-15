@@ -1,5 +1,6 @@
 require 'i18n_template/runner/base'
 require 'i18n_template/runner/extract_phrases'
+require 'i18n_template/runner/show_template'
 
 require 'optparse'
 module I18nTemplate
@@ -15,14 +16,23 @@ module I18nTemplate
           I18nTemplate.runners.each do |runner|
             op.separator ""
             op.separator "#{runner.command} - #{runner.description}"
+            op.separator ""
+            op.separator "Example: #{$0} #{runner.command} #{runner.example}"
+            op.separator ""
+
             runner.add_options!(op, options)
           end
 
+          op.separator "Common options:"
           op.separator ""
           op.on(
             "--verbose",
             "turn on verbosity"
           ) { |v| options[:verbose] = true }
+          op.on(
+            "--debug",
+            "turn on debug"
+          ) { |v| options[:debug] = true }
 
           op.separator ""
           op.on_tail("-h", "--help", "Show this message") { puts op; exit }
@@ -53,7 +63,9 @@ module I18nTemplate
           exit 1
         end
 
-        runner.new(options).run
+        I18nTemplate.debug = true if options[:debug]
+
+        runner.new(ARGV, options).run
       end
     end
 

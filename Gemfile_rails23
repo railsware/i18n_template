@@ -1,0 +1,8 @@
+source :rubygems
+
+gemspec
+
+gem "rails", "2.3.14"
+
+gem "minitest", "3.0.0"
+

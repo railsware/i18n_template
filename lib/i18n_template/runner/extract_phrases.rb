@@ -1,4 +1,7 @@
-require 'i18n_template/extractor'
+require 'i18n_template/extractor/base'
+require 'i18n_template/extractor/plain'
+require 'i18n_template/extractor/gettext'
+require 'i18n_template/extractor/yaml'
 
 module I18nTemplate
   module Runner
@@ -14,6 +17,10 @@ module I18nTemplate
 
         def description
           'extract phrases for translations'
+        end
+
+        def example
+          "--verbose --format yaml --glob 'app/views/**/*.html.erb'"
         end
 
         def default_options

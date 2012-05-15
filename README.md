@@ -1,251 +1,322 @@
 # I18nTemplate
 
-## Main Feature
+On the fly internationalization of HTML/ERuby Rails templates.
 
-Just compare regulare rails view internationalization:
+Work with Rails:
 
-    <html>
-      <body>
-        <% current_year = Time.now.year %>
-        <span><%= t('hello') %></span>
-        <h2><%= t('Dashboard') </h2>
-        <div><%= t('Posts count:') %><%= current_user.posts.count %></div>
-        <div><%= t('Click') %><a href="#"><%= t('here') %></a></div>
-        ...
-      </body>
-    </html>
+* v2.3.x
+* v3.0.x
+* v3.1.x
+* v3.2.x
 
-with i18n template internationalization:
+## Very quick start
 
-    <html>
-      <body>
-        <% current_year = Time.now.year %>
-        <span i18n="p">hello</span>
-        <h2>Dashboard</h2>
-        <div>Posts count: <%= current_user.posts.count %></div>
-        <div>Click<a href="#">here</a></div>
-        ...
-      </body>
-    </html>
+Add to Gemfile:
 
-Nice?
+    gem "i18n_template"
 
-## How it Works
+Install gem:
 
-It convert *on the fly* regular erb template to another erb template. For above example this is something like:
+    $ bundle install
 
-    <html>
-      <body>
-        <% current_year = Time.now.year %>
-        <span>
-          <%- i18n_variables = {}; i18n_wrappers = [] -%>
-          <%= ::I18nTemplate::Translation.translate("hello", i18n_wrappers, i18n_variables) %>
-        </span>
-        <h2>
-          <%- i18n_variables = {}; i18n_wrappers = [] -%>
-          <%= ::I18nTemplate::Translation.translate("Dashboard", i18n_wrappers, i18n_variables) %>
-         </h2>
-        <div>
-          <%- i18n_variables = {}; i18n_wrappers = [] -%>
-          <%- i18n_variables['current user posts count'] = capture do -%>
-            <%= current_user.posts.count %>
-          <%- end -%>
-          <%= ::I18nTemplate::Translation.translate("Posts count: {current user posts count}",
-              i18n_wrappers, i18n_variables) %>
-        </div>
-        <div>
-          <%- i18n_variables = {}; i18n_wrappers = [] -%>
-          <%- i18n_wrappers[1] = capture do -%>
-            <a href="#" i18n_wrapper="1">
-              <%- i18n_variables = {}; i18n_wrappers = [] -%>
-              <%= ::I18nTemplate::Translation.translate("here", i18n_wrappers, i18n_variables) %>
-            </a>
-          <%- end -%>
-          <%= ::I18nTemplate::Translation.translate("Click[1]here[/1]", i18n_wrappers, i18n_variables) %>
-         </div>
-      </body>
-    </html>
+Check new rake tasks:
 
-Translation phrases (keys):
+    $ rake -T i18n_template
+    rake i18n_template:update_keys             # update i18n keys
+    rake i18n_template:translate_keys          # translate i18n keys
+    rake i18n_template:show_keys               # show i18n keys
+    rake i18n_template:inspect_template[name]  # inspect template
 
-* _hello_
-* _Dashboard_
-* _Posts count: {current user posts count}_
-* _Click[1]here[/1]_
+Ensure you have at least one locale file e.g. `config/locales/en.yml` 
 
-## Description
+Now you can internationalize and translate ALL your templates ONLY in 2 steps!
 
-I18nTemplate is made to extract phrases and translate html/xhtml/xml document or erb templates.
-Currently the it can work with (x)html documents.
-Translation is done by modify the original template (on the fly) to be translated on erb execution time.
+    $ rake i18n_template:update_keys
+    $ rake i18n_template:translate_keys
 
-## Semantics
+That's all! Start server and check views in different locales.
 
-The engine is leveraging the HTML document semantics.
-As we know HTML document element can contain : block elements and/or inline elements.
-The engine has the following parsing rules, based on what kind of children a parent element contains:
+## Preface
 
-* block element containing only block elements - is named a parent element, and is ignored by the engine;
-* block element containing only inline elements - is named phrase, while every inline element is named a word;
-* inline element containing other inline elements - is also a word;
-* any other variation - is considered a broken element, which should be one of there above.
+[Official rails i18n guide](http://guides.rubyonrails.org/i18n.html) explains how we should internationalize views.
 
-### Markup
+For example next template:
 
-Additionally for the sake of best practices and optimiztion the following rules take place:
+    <div>
+      Hello <span class="degree">Prof.</span> Jack!
+      <p>Today is <b>Monday</b></p>
+    </div>
 
-* the following elements as considered block elements by the engine 
- * usual block : `blockquote p div h1 h2 h3 h4 h5 h6 li dd dt`
- * inline elements : `td th a legend label title caption option optgroup button`
-* the following elements, and their content, will be ignored by the engine:
- * html elements: `select style script` 
- * non-breaking space: `&nbsp;` 
- * erb scriptlets: `<% <%=`
- * html comments: `<!-- -->`
- * xhtml doctype: `<!DOCTYPE`
-* additional best practices are added to translate content inside such tags
+can be internationalized in different ways.
 
-In order to fix a broken elements next elements/attributes can be added to the html document to resolve engine misunderstanding:
+### Using multiple keys
 
-* `<i18n>content</i18n>` - mark invisible for parser content for internationalization
-* `<... i18n="i" ...>content<...>`  - (ignore) ignore element content internationalization
-* `<... i18n="p" ...>content<...>`  - (phrase) explicitly enable content internationalization
-* `<... i18n="s" ...>content<...>`  - (subphrase) mark element content as sub-phrase for parent element phrase
+Template:
 
-## Translation
+    <div>
+      <%= t('Hello') > <span class="degree"><%= t("Prof.") %></span> <%= t("Jack!") %>
+      <p><%= t('Today is') %><b><%= t('Monday')%</b></p>
+    </div>
 
-### Brackets
+Keys:
 
-    [1]Hello World[/1]
+    en:
+      Hello: Hello
+      Prof: 'Prof.'
+      Jack: 'Jack!'
+      'Today is: 'Today is'
+      Monday: Monday
 
-### Braces
+###  Using HTML keys
 
-Example
+Template:
 
-    Hello { user name }
+    <div>
+      <%= key1_html %>
+      <p><%= key2_html %></p>
+    </div>
 
-* `<%= @user_name %>`  as `{user name}`
-* `<%= user_name %>`  as `{user name}`
-* `<%= @post.comments.count %>`  as `{post comments count}`
+Keys:
 
-## Using with Rails (2.3.x 3.x.x)
+    en:
+      key1_html: Hello <span class="degree">Prof.</span> Jack!
+      key2_html: Today is <b>Monday</b>
 
-    $ gem install i18n_template
+### Using Interpolations
 
-    require 'i18n_template'
+Template:
 
-    ActionView::Template.register_template_handler(:erb, I18nTemplate::Handler.new)
+    <div>
+      <%= t("Hello %{tag1}Prof.%{tag2} Jack!", :tag1 => '<span class="degree">', :tag2 => '</span>') %>
+    <p><%=t ("Today is %{tag1}Monday%{tag2}")", :tag1 => "<b>", :tag2 => "</b>" %></p>
 
-### Set another phrase translator:
+Keys:
 
-    I18nTemplate.phrase_translator = lambda { |phrase| Google.translate(phrase) }
+    en:
+      "Hello %{tag1}Prof.%{tag2} Jack!": "hello %{tag1}Prof.%{tag2} Jack!"
+      "Today is %{tag1}Monday%{tag2}": "Today is %{tag1}Monday%{tag2}"
 
-### More template internationalize control
 
-Assume we don't want to internationalize admin view templates.
+But all approaches has disadvantages:
 
-    class MyI18nTemplateHandler < I18nTemplate::Handler
-      def internationalize?(template)
-        if template.respond_to?(:path)
-          path =~ /^admin/ ? false : true
-        else
-          true
-        end
-      end
-    end
+* Cripple template with `<%= t(...) %>`.
+* Forces to create unique key for each phrase.
+* There is no official tools to extract translation keys.
 
-    ActionView::Template.register_template_handler(:erb, MyI18nTemplateHandler.new)
+And that's sucks.
+
+## Concept of I18nTemplate
+
+When you have a huge amount of templates you can waste a huge amount of time for internationalization!
+But what about to invent something a little bit smarter?.
+Let's analyze structure of HTML/ERuby templates first.
+
+### HTML part
+
+As we know each [HTML element](http://en.wikipedia.org/wiki/HTML_element) can be rendered as either *block* or *inline*. Block element can contain another block or inline elements. But inline element can contain only inline elements. Each element can contain *Text*.
+
+Let's define a *Phrase* as combination of text and inline elements located ONLY in one block element.
+
+For example next text:
+
+    <div>
+      Hello <span class="degree">Prof.</span> Jack!
+      <p>Today is <b>Monday</b></p>
+    </div>
+
+has 2 phrases:
+
+* `Hello []Prof.[] Jack!`
+* `Today is []Monday[]`
+
+Where `[]` is container for markup separator or wrapper.
+
+### ERuby part
+
+Eruby has next embed patterns:
+
+* `<% ... %>` - a code
+* `<%# ... %>` - a comment
+* `<%= ... %>` - an expression
+
+Let's treat *erb expression* as inline element and other erb embeds as block.
+
+For example:
+
+    <div>
+      <% if current_user %>
+        Hello <span class="degree">Prof.</span> <%= current_user.name %>!
+      <% end %>
+      <p>Today is <b><% Date::DAYNAMES[Date.today.wday] %></b></p>
+    </div>
+
+has 2 phrases:
+
+* `Hello []Prof.[] {}`
+* `Today is []{}[]`
+
+Where `{}` is container for interpolation with some variable.
+
+## I18nTemplate key semantic
+
+Complex key might looks like `Hello [1][2]{1}[/2][/1] [3/]Welcome [4]aboard[/4]!`
+
+where:
+
+* `[NUMBER]` - is place for begin of wrapper #NUMBER
+* `[/NUMBER]` - is place for end of wrapper #NUMBER
+* `[NUMBER/]` - is place for self close wrapper #NUMBER
+* `{NUMBER}` - is place for variable #NUMBER
+
+Also we escape next characters in key:
+
+    '"' => '[quot]',
+    '[' => '[lsb]',
+    ']' => '[rsb]',
+    '{' => '[lcb]',
+    '}' => '[rcb]',
+
+We treat next HTML elements as inline:
+
+    a abbr acronym b bdo big br cite code dfn em i img input kbd label q samp
+    small span strong sub sup textarea tt var button del ins map object
+
+### Special i18n tag attribute
+
+Sometimes you need to explicit set behavior. You may use custom HTML attribute `data-i18n` (attribute name is valid for HTML5) with next values:
+
+* `i` - (ignore) ignore internationalization for this tag and *all* it descendants (tags and texts).
+* `n` - (new phrase) tag treats as block. So it will break phrase and it first inline child or text starts new phrase.
+* `s` - (sub phrase) tag treats as inline. So it will not break phrase and it and it children will be part of current phrase
+
+#### Ignore attribute example
+
+Template:
+
+    <h2 data-i18n="i">Welcome <span>aboard</span>!</h2>
+
+Keys: none.
+
+Compiled template:
+
+    <h2 data-i18n="i">Welcome <span>aboard</span>!</h2>
+
+#### New phrase attribute example
+
+Template:
+
+    <div>Hello<div style="display:inline" data-i18n="s">World</div></div>
+
+Keys:
+
+* `Hello [1]World[/1]`
+
+Compiled template:
+
+    <div>
+      <%- i18n_values = {} -%>
+      <%- i18n_values['[1]'] = capture do -%><div style="display:inline" data-i18n="s"><%- end -%>
+      <%- i18n_values['[/1]'] = capture do -%></div><%- end -%>
+      <%= I18nTemplate.t("Hello [1]World[/1]", i18n_values) %>
+    </div>
+
+### Sub phrase attribute example
+
+Template:
+
+    <div>
+      Error: <span>username</span>
+      <span data-i18n="n">(required)</span>
+    </div>
+
+Keys:
+
+* `Error: [1]username[/1]`
+* `(required)`
+
+Compiled template:
+
+    <div>
+      <%- i18n_values = {} -%>
+      <%- i18n_values['[1]'] = capture do -%><span><%- end -%>
+      <%- i18n_values['[/1]'] = capture do -%></span><%- end -%>
+      <%= I18nTemplate.t("Error: [1]username[/1]", i18n_values) %>
+      <span data-i18n="n"><% I18nTemplate.t("(required)") %></span>
+    </div>
+
+
+### Rules
+
+* Inline element is _new phrase_ if sibling (prev or next) is not a phrase otherwise it's _sub phrase_.
+* Text is _new phrase_ if prev sibling is not a phrase otherwise it's _sub phrase_.
+* Block element inside inline element breaks current phrase.
+* ERuby expression can be part of phrase as variable.
+* Another ERuby treats as block elements thus are not part of phrase
 
 ## Testing
 
 ### Setup
 
-    $ rvm alias create rails23_r187 ruby-1.8.7
-    $ rvm alias create rails30_r193 ruby-1.9.3
-    $ rvm alias create rails31_r193 ruby-1.9.3
-
-    $ gem install multiversion
-    $ multiversion all bundle install
+    $ BUNDLE_GEMFILE=Gemfile.rails32 bundle install
+    $ BUNDLE_GEMFILE=Gemfile.rails31 bundle install
+    $ BUNDLE_GEMFILE=Gemfile.rails30 bundle install
+    $ BUNDLE_GEMFILE=Gemfile.rails23 bundle install
 
 ### Run
 
-Against all versions:
+Against all:
 
-    $ multiversion all exec testrb test/*_test.rb
+    $ BUNDLE_GEMFILE=Gemfile.rails32 bundle exec rake test
+    $ BUNDLE_GEMFILE=Gemfile.rails31 bundle exec rake test
+    $ BUNDLE_GEMFILE=Gemfile.rails30 bundle exec rake test
+    $ BUNDLE_GEMFILE=Gemfile.rails23 bundle exec rake test
 
-Against specific versions:
+Against specific test:
 
-    $ multiversion rails30_r193,rails31_r193 exec testrb test/*_test.rb
+    $ BUNDLE_GEMFILE=Gemfile.rails32 bundle exec ruby test/i18n_template/document_test.rb -n /0001/
 
 
-## Extract phrases
+## Under the hood
 
-    $ i18n_template --help
-    extract_phrases - extract phrases for translations
-        --format plain|gettext|yaml  translation format (default gettext)
-        --po-root PO ROOT            root directly for po files (default po)
-        --glob GLOB                  template files glob (default app/views/**/*.{erb,rhtml})
-        --textdomain TEXTDOMAIN      gettext textdomain (default phrases)
-        --output-file FILE           output file (default template_phrases.txt)
-        --locales-root DIRECTORY     locales directory (default config/locales)
+I18nTemplate consists of next parts:
 
-### Plain format
+* I18nTemplate::Document - engine for transforming HMLL/ERuby template to i18n Eruby template and extracting i18n keys
+* I18nTemplate::Handler - is handler that registerd via railtie as default erb handler for HTML mime type.
+* I18nTemplate::Translator - is simple wrapper for interpolation and translation phrases using I18n engine.
+* rake tasks - bunch of tasks to extract, update and translate phrases.
 
-    $ i18n_template extract_phrases --format plain --output-file /tmp/phrases.txt
+### I18nTemplate::Document
 
-### Yaml format
+It's the most complex thing in library. Current implementation is next:
 
-    $ i18n_template extract_phrases --format yaml
+* Folds all non-html text as special string like `≤0:erb_code≥`
+* Build using simple html tokenizer nodes stack and tree of html elements:
+ * each html element as Tag node (open, close, self-close)
+ * each text as Text and Fold nodes
+* Traverse tree in __postorder__ order and mark each node with possible flags:
+ * ignore
+ * phrase
+ * candidate
+* Then traverse tree in __preorder__ and take decision for each candidate node (ignore or phrase)
+* Then create replace all nodes marked as phrase with Phrase node.
+* Then translate rails helpers inside eruby expression folds
+* Then iterate each node invoking to_eruby and store it as source.
 
-    $ cat config/locales/phrases.yml
-    en:
-      Hello {user name}, {message}: 
-      '[1]First name[/1] : {profile first name}': 
-      '[1]Last name[/1] : {profile last name}': 
-      '[1]Email[/1] : {account email}': 
-      Copyright {current year}. All rights reserved.: 
+Thus we have internationalize template and interpolation keys.
 
-### Gettext format
+### I18nTemplate::Handler
 
-    $ i18n_template extract_phrases \
-      --textdomain myapp \
-      --glob app/views/**/*.erb \
-      --glob lib/view/**/*.erb
+Is simple handler for ActionView that transform original source via I18nTemplate::Document.
 
-    $ tree --dirsfirst po
-    po
-    ├── de
-    │   └── myapp.po
-    └── myapp.pot
 
-    $ cat po/phrases.pot
-    # SOME DESCRIPTIVE TITLE.
-    # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-    # This file is distributed under the same license as the PACKAGE package.
-    # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-    #
-    msgid ""
-    msgstr ""
-    "Project-Id-Version: PACKAGE VERSION\n"
-    "POT-Creation-Date: 2011-11-28 15:38+0200\n"
-    "PO-Revision-Date: 2011-11-25 21:27+0200\n"
-    "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-    "Language-Team: LANGUAGE <LL@li.org>\n"
-    "Language: \n"
-    "MIME-Version: 1.0\n"
-    "Content-Type: text/plain; charset=UTF-8\n"
-    "Content-Transfer-Encoding: 8bit\n"
-    "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+### I18nTemplate::Translator
 
-    # app/views/_footer.html.erb
-    msgid "Copyright {current year}. All rights reserved."
-    msgstr ""
+* Translate phrase using standard I18n engine.
+* Interpolate `[NUMBER]`, `[/NUMBER]`, `[NUMBER/]`,`{NUMBER}` with actual values.
+* Unescape previously escaped characters
 
-    # app/views/greeting.html.erb
-    msgid "Hello {user name}, {message}"
-    msgstr ""
 
 ## References
 
 * [i18n_template rubydocs](http://rubydoc.info/github/railsware/i18n_template/master/frames)
-* [multiversion](https://github.com/railsware/multiversion)
+* [Rails Internationalization API](http://guides.rubyonrails.org/i18n.html)

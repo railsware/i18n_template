@@ -22,7 +22,7 @@ module I18nTemplate
       if internationalize?(template)
         document = ::I18nTemplate::Document.new(template.source)
         document.process!
-        document.warnings.each { |warning| $stderr.puts warning } if @options[:verbose]
+        document.errors.each { |message| $stderr.puts message } if @options[:verbose]
 
         erb_handler.call(document)
       else

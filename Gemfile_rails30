@@ -1,0 +1,7 @@
+source :rubygems
+
+gemspec
+
+gem "rails", "3.0.11"
+
+gem "minitest", "3.0.0"

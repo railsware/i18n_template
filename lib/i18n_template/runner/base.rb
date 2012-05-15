@@ -3,7 +3,13 @@ module I18nTemplate
     ##
     # Base runner class
     class Base
-      def initialize(options)
+      class << self
+        def add_options!(parser, options)
+        end
+      end
+
+      def initialize(argv, options)
+        @argv = argv
         @options = options
       end
     end
