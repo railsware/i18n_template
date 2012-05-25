@@ -103,7 +103,7 @@ But all approaches has disadvantages:
 * Forces to create unique key for each phrase.
 * There is no official tools to extract translation keys.
 
-And that's sucks.
+**But that's sucks**.
 
 ## Concept of I18nTemplate
 
@@ -159,7 +159,20 @@ Where `{}` is container for interpolation with some variable.
 
 ## I18nTemplate key semantic
 
-Complex key might looks like `Hello [1][2]{1}[/2][/1] [3/]Welcome [4]aboard[/4]!`
+We treat next HTML elements as inline:
+
+    a abbr acronym b bdo big br cite code dfn em i img input kbd label q samp
+    small span strong sub sup textarea tt var button del ins map object
+
+So they are possible candidates to be part of phrase. Block elements can't be a part of phrase.
+
+For template like:
+
+    <body>
+      <span><span><%= user.name %></span></span> <br />Welcome <i>aboard</i>
+    </body>
+
+Complex key looks like `Hello [1][2]{1}[/2][/1] [3/]Welcome [4]aboard[/4]!`
 
 where:
 
@@ -167,6 +180,7 @@ where:
 * `[/NUMBER]` - is place for end of wrapper #NUMBER
 * `[NUMBER/]` - is place for self close wrapper #NUMBER
 * `{NUMBER}` - is place for variable #NUMBER
+
 
 Also we escape next characters in key:
 
@@ -176,10 +190,110 @@ Also we escape next characters in key:
     '{' => '[lcb]',
     '}' => '[rcb]',
 
-We treat next HTML elements as inline:
+## Examples
 
-    a abbr acronym b bdo big br cite code dfn em i img input kbd label q samp
-    small span strong sub sup textarea tt var button del ins map object
+So we have two types of keys: simple and complex. 
+Simple key it's only key with text e.g. `Hello World`.
+Complex key has wrapper and variable placeholders e.g. `[1]Hello[/1] {1}`.
+
+For simple keys transformation is also simple. We just wrap key with `I18nTemplate.t` method:
+
+    <%= I18nTemplate.t("Hello") %>
+
+I case of complex key we generate local container variable `i18n_values` to store 
+values for each placeholder in the key. Then we capture actual placeholder value using `capture` helper and store it as key of `i18n_values`. And pass container variable `i18n_values` as second argument to `I18nTemplate.t` method:
+
+    <%- i18n_values = {} -%>
+    <%- i18n_values['{1}'] = capture do -%><%= @user.name %><%- end -%>
+    <%= I18nTemplate.t("Hello, {1}", i18n_values)
+
+### Double wrapped text
+
+
+Original template:
+
+    <body>
+      <span><span>Hello</span></span>
+    </body>
+
+Transformed template:
+
+    <body>
+      <span><span><%= I18nTemplate.t("Hello") %</span></span>
+    </body>
+
+Keys:
+
+* `Hello`
+
+### Phrase with wrappers and variables
+
+Original template:
+
+    <body>
+      <span>
+        <b>How do you do</b>, <%= @user.name %>?
+      </span>
+    </body>
+
+Transformed template:
+
+    <body>
+      <span>
+        <%- i18n_values = {} -%>
+        <%- i18n_values['[1]'] = capture do -%><b><%- end -%>
+        <%- i18n_values['[/1]'] = capture do -%></b><%- end -%>
+        <%- i18n_values['{1}'] = capture do -%><%= @user.name %><%- end -%>
+        <%= I18nTemplate.t("[1]How do you do[/1], {1}", i18n_values)
+      </span>
+    </body>
+
+Keys:
+
+* `[1]How do you do[/1], {1}`
+
+### Complex case
+
+Original template:
+
+    <body>
+      <h2>User listing</h2>
+      <% users.each do |user| %>
+        <div class="row">
+          Username: <i><%= user.name %></i> <br /> 
+          <small><%= user.created_at %></small>
+        </div>
+      <% end %>
+      <div>Total: <%= user.size %> users</div>
+    </body>
+
+Transformed template:
+
+    <body>
+      <h2><%= I18nTemplate.t('User listing') %></h2>
+      <% users.each do |user| %>
+        <div class="row">
+          <%- i18n_values = {} -%>
+          <%- i18n_values['[1]'] = capture do -%><i><%- end -%>
+          <%- i18n_values['{1}'] = capture do -%><%= user.name %><%- end -%>
+          <%- i18n_values['[/1]'] = capture do -%></i><%- end -%>
+          <%- i18n_values['[2/]'] = capture do -%><br /><%- end -%>
+          <%- i18n_values['[3]'] = capture do -%><small><%- end -%>
+          <%- i18n_values['{2}'] = capture do -%><%= user.created_at %><%- end -%>
+          <%- i18n_values['[/3]'] = capture do -%></small><%- end -%>
+          <%= I18nTemplate.t("Username: [1]{1}[/1] [/2] [3]{2}[/3]", i18n_values) %>
+        </div>
+      <% end %>
+      <%- i18n_values = {} -%>
+      <%- i18n_values['{1}'] = capture do -%><%= user.size %><%- end -%>
+      <div><%= I18nTemplate.t("Total: {1}", i18n_values) %>
+    </body>
+
+Keys:
+
+* `User listing`
+* `Username: [1]{1}[/1] [/2] [3]{2}[/3]`
+* `Total: {1}`
 
 ### Special i18n tag attribute
 
